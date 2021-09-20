@@ -1,0 +1,34 @@
+### Analyse piece of string
+# includes clever examples of string interactions
+
+class analysedText(object):
+    
+    def __init__ (self, text="esimerkkiteksti"): # remember default value setup
+        self.fmtText=text
+        
+        self.fmtText=self.fmtText.lower()
+        self.fmtText=self.fmtText.replace(".","").replace("!","").replace("?","").replace(",","") ## nice oneliner practice here
+        print(self.fmtText)
+        
+        # remember to return none type in init
+    
+    """ Split text and go through each split to find exact matches"""
+    def freqAll(self): 
+        text = self.fmtText.split()
+
+        dic={}
+        
+        for element in text:
+            #dic[element] = self.fmtText.count(element) # this fails, because it goes through the whole text with each element
+            dic[element] = text.count(element) # this works, because it goes through the split list looking only for exact matches in each list element
+            
+        return (dic)
+    
+    """ Check (string -> dictionary) for number of occurrences of the word given as arg"""
+    def freqOf(self,word):
+        wordCountDic = self.freqAll()
+       
+        result = wordCountDic[word] # remember how to access dict
+        print("Word "+word+" frequency is "+str(result)) # remember int must be recast to str type
+        return (result)
+        
