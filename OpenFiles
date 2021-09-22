@@ -1,0 +1,109 @@
+#Run this prior to starting the exercise
+from random import randint as rnd
+
+memReg = 'members.txt'
+exReg = 'inactive.txt'
+fee =('yes','no')
+
+def genFiles(current,old):
+    with open(current,'w+') as writefile: 
+        writefile.write('Membership No  Date Joined  Active  \n')
+        data = "{:^13}  {:<11}  {:<6}\n"
+
+        for rowno in range(20):
+            date = str(rnd(2015,2020))+ '-' + str(rnd(1,12))+'-'+str(rnd(1,25))
+            writefile.write(data.format(rnd(10000,99999),date,fee[rnd(0,1)]))
+
+    with open(old,'w+') as writefile: 
+        writefile.write('Membership No  Date Joined  Active  \n')
+        data = "{:^13}  {:<11}  {:<6}\n" # data row is (13+2+11+2)+6+1 long; yes/no comes after 28
+        for rowno in range(3):
+            date = str(rnd(2015,2020))+ '-' + str(rnd(1,12))+'-'+str(rnd(1,25))
+            writefile.write(data.format(rnd(10000,99999),date,fee[1]))
+
+genFiles(memReg,exReg)
+
+with open(memReg,'r') as readFile: #readFile is io.TextIOWrapper
+    print(str(len(readFile.readlines()))+" original active Member rows: \n\n")
+    readFile.seek(0,0)  #after going through the file once, return to beginning to print it
+    print(readFile.read())
+
+with open(exReg,'r') as readFile:
+    print(str(len(readFile.readlines()))+" original inactive Member rows: \n\n")
+    #readFile.seek(0,0)   #after going through the file once, return to beginning to print it
+    #print(readFile.read())
+
+"""
+# Given the file currentMem, Remove each member with a 'no' in their Active column. 
+# Keep track of each of the removed members and append them to the exMem file. 
+# Make sure the format of the original files is preserved. 
+# (Hint: Do this by reading/writing whole lines and ensuring the header remains) 
+"""
+
+def cleanFiles(currentMem,exMem):
+    import os
+    headers = "Membership No  Date Joined  Active  \n"
+    tempFile = "temp.txt"
+    '''
+    currentMem: File containing list of current members
+    exMem: File containing list of old members
+    
+    Removes all rows from currentMem containing 'no' and appends them to exMem
+    '''
+    with open(currentMem, "r") as readFile:
+        with open(exMem, "a") as exMembers:
+            #append, to keep the old inactive members in the list
+            
+            with open(tempFile, "w+") as activeMembers: 
+                # w+ opens file for both writing and reading; 
+                # overwrites a file if one exists
+                # if doesn't exist, creates new file
+
+                activeMembers.write(headers)
+                next(readFile) #move past header
+                for line in readFile: #read the current members file
+                    a=line.split()
+                    if a[2]=="no": # this is hacking IMO
+                        exMembers.write(line) #write all inactive lines to exmem
+                    else:
+                        activeMembers.write(line) #write all active lines to temp
+    os.replace(tempFile, currentMem) #overwrite currentMem with active/temp contents
+        
+    print("------------------")
+
+    """
+    https://stackoverflow.com/questions/4710067/how-to-delete-a-specific-line-in-a-file
+    Don't use single open. If you get an error in the for loop, 
+    you'll end up with a partially overwritten file, with duplicate lines or a line half cut off.
+    
+    The issue with reading lines in first pass and making changes (deleting specific lines) in the second pass 
+    is that if you file sizes are huge, you will run out of RAM. 
+    Instead, a better approach is to read lines, one by one,
+    and write them into a separate file, eliminating the ones you don't need.
+    
+    For small files you might also open the file twice (and close it in between) because in the first mode 
+    it is "read-only" because you are just reading in the current lines in the file. 
+    You then close it and re-open it in "write mode", where the file is writable 
+    and you replace the contents of the file sans the line you wanted to remove."""
+                    
+# Code to help you see the files
+# Leave as is
+memReg = 'members.txt'
+exReg = 'inactive.txt'
+cleanFiles(memReg,exReg)
+
+headers = "Membership No  Date Joined  Active  \n"
+with open(memReg,'r') as readFile: #readFile is io.TextIOWrapper
+    print("Active Members: \n\n")
+    #readFile.seek(0,0)
+    print(readFile.readline()) # first, print headers
+    for item in readFile: # this prints every second row
+        #a = readFile.readline() # then, print row by row
+        #a = item.readline()
+        print(item)
+    print(readFile.readline()) 
+    
+with open(exReg,'r') as readFile:
+    print("Inactive Members: \n\n")
+    print(readFile.read())
+
